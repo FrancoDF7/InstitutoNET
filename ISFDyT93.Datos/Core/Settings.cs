@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.Remoting.Contexts;
 
 namespace ISFDyT93.Datos.Core
 {
@@ -9,7 +8,7 @@ namespace ISFDyT93.Datos.Core
         {
             get
             {
-                string connStr = "Data Source = DESKTOP-JJFT39E\\GDBD; Integrated Security = True; Persist Security Info = False; Pooling = False; MultipleActiveResultSets = False; Connect Timeout = 30; Encrypt = True; TrustServerCertificate = True"; ;
+                string connStr = Environment.GetEnvironmentVariable("INSTITUTO_DB_CONNECTION_STRING");
                 if (string.IsNullOrWhiteSpace(connStr))
                     throw new InvalidOperationException(
                         "La variable de entorno INSTITUTO_DB_CONNECTION_STRING no está definida.");
