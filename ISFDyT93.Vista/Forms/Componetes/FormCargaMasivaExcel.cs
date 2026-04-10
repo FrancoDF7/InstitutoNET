@@ -1,15 +1,12 @@
-﻿using ISFDyT93.Datos.Daos;
 using ISFDyT93.Datos.Modelos;
 using ISFDyT93.Negocio.Logica;
 using Syncfusion.XlsIO;
 using System;
 using System.Data;
-using System.Globalization;
+using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using ISFDyT93.Vista.Forms.Alumnos;
-using ISFDyT93.Vista.Forms.Componetes;
-using ISFDyT93.Vista.Core.Enums;
+using ISFDyT93.Negocio;
 using System.Xml.Linq;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,19 +15,22 @@ namespace ISFDyT93.Vista.Forms.Componentes
 {
     public partial class FormCargaMasivaExcel : Form
     {
-        AlumnosLogica alumnosLogica = new AlumnosLogica();
         CarrerasLogica carrerasLogica = new CarrerasLogica();
-        
+
         public FormPrincipal Contenedor { get; set; }
         public string Accion { get; set; }
         public int AlumnoId { get; set; }
         public int AlumnoCarreraId { get; set; }
 
         DataTable dtExcel;
+        HashSet<int> _columnasNoMapeadas = new HashSet<int>();
+        List<string> _propiedades;
 
         public FormCargaMasivaExcel()
         {
             InitializeComponent();
+            dgvCargaMasiva.CellPainting += PintarHeaderNoMapeado;
+            dgvCargaMasiva.ColumnHeaderMouseClick += MostrarMenuMapeo;
         }
 
         private void btnBuscarArchivoExcel_Click(object sender, EventArgs e)
@@ -39,129 +39,133 @@ namespace ISFDyT93.Vista.Forms.Componentes
             archivoExcel.Filter = "Archivos Excel|*.xls;*.xlsx|Archivos .csv (*.csv)|*.csv";
             archivoExcel.InitialDirectory = "C://";
 
-
             if (archivoExcel.ShowDialog() == DialogResult.OK)
             {
-                dtExcel = new DataTable();
                 string rutaCvs = archivoExcel.FileName;
                 using (Stream inputStream = File.OpenRead(rutaCvs))
+                using (ExcelEngine excelEngine = new ExcelEngine())
                 {
-                    using (ExcelEngine excelEngine = new ExcelEngine())
-                    {
-                        IApplication application = excelEngine.Excel;
-                        IWorkbook workbook = application.Workbooks.Open(inputStream);
-                        IWorksheet worksheet = workbook.Worksheets[0];
-                        dtExcel = worksheet.ExportDataTable(worksheet.UsedRange, ExcelExportDataTableOptions.ColumnNames);
-                    }
+                    IWorksheet worksheet = excelEngine.Excel.Workbooks.Open(inputStream).Worksheets[0];
+                    dtExcel = worksheet.ExportDataTable(worksheet.UsedRange, ExcelExportDataTableOptions.ColumnNames);
                 }
                 dgvCargaMasiva.DataSource = dtExcel;
-                
+                ProcesarHeaders();
             }
         }
 
-        /// <summary>
-        /// Indica si una columna de Excel coincide con alguna de las variantes definidas en el XML para la propiedad indicada.
-        /// </summary>
-        /// <param name="nombrePropiedad">Clave definida en el XML.</param>
-        /// <param name="nombreExcel">Nombre de la columna a evaluar.</param>
-        /// <returns>True si hay coincidencia; de lo contrario, false.</returns>
+        public void ProcesarHeaders()
+        {
+            _columnasNoMapeadas.Clear();
+            _propiedades = typeof(AlumnosModelo).GetProperties().Select(p => p.Name).ToList();
+
+            foreach (DataColumn column in dtExcel.Columns.Cast<DataColumn>().ToList())
+            {
+                bool matched = false;
+                foreach (var prop in typeof(AlumnosModelo).GetProperties())
+                {
+                    if (BuscarCoincidencia(prop.Name, column.ColumnName))
+                    {
+                        if (!dtExcel.Columns.Contains(prop.Name))
+                            column.ColumnName = prop.Name;
+                        matched = true;
+                        break;
+                    }
+                }
+
+                if (!matched)
+                {
+                    var dgvCol = dgvCargaMasiva.Columns[column.ColumnName];
+                    if (dgvCol != null)
+                        _columnasNoMapeadas.Add(dgvCol.Index);
+                }
+            }
+
+            dgvCargaMasiva.Invalidate();
+        }
+
+        private void PintarHeaderNoMapeado(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            if (e.RowIndex != -1 || !_columnasNoMapeadas.Contains(e.ColumnIndex)) return;
+
+            e.PaintBackground(e.CellBounds, false);
+            using (var brush = new SolidBrush(Color.Crimson))
+                e.Graphics.FillRectangle(brush, e.CellBounds);
+
+            string texto = (e.Value?.ToString() ?? "") + "  ▼";
+            var formato = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+            using (var brush = new SolidBrush(Color.White))
+                e.Graphics.DrawString(texto, e.CellStyle.Font, brush, e.CellBounds, formato);
+            e.Handled = true;
+        }
+
+        private void MostrarMenuMapeo(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (_propiedades == null) return;
+
+            var menu = new ContextMenuStrip();
+            int colIndex = e.ColumnIndex;
+
+            foreach (var prop in _propiedades)
+            {
+                var item = new ToolStripMenuItem(prop);
+                item.Click += (s, args) => AplicarMapeo(colIndex, prop);
+                menu.Items.Add(item);
+            }
+
+            Rectangle rect = dgvCargaMasiva.GetCellDisplayRectangle(colIndex, -1, true);
+            menu.Show(dgvCargaMasiva.PointToScreen(new Point(rect.Left, rect.Bottom)));
+        }
+
+        private void AplicarMapeo(int colIndex, string propiedadSeleccionada)
+        {
+            var dgvCol = dgvCargaMasiva.Columns[colIndex];
+            if (dgvCol == null) return;
+
+            string nombreActual = dgvCol.HeaderText;
+            if (nombreActual == propiedadSeleccionada)
+            {
+                // Mismo nombre, solo limpiar el estado rojo si estaba sin mapear
+                _columnasNoMapeadas.Remove(colIndex);
+                dgvCargaMasiva.InvalidateCell(colIndex, -1);
+                return;
+            }
+
+            if (dtExcel.Columns.Contains(propiedadSeleccionada))
+            {
+                MessageBox.Show($"Ya hay una columna asignada como '{propiedadSeleccionada}'.", "Mapeo duplicado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (dtExcel.Columns.Contains(nombreActual))
+                dtExcel.Columns[nombreActual].ColumnName = propiedadSeleccionada;
+
+            dgvCol.HeaderText = propiedadSeleccionada;
+            _columnasNoMapeadas.Remove(colIndex);
+            dgvCargaMasiva.InvalidateCell(colIndex, -1);
+        }
+
         public bool BuscarCoincidencia(string nombrePropiedad, string nombreExcel)
         {
-            XDocument doc = XDocument.Load("C:\\REPO\\InstitutoNET\\datos.xml");// ojo ver ruta del xml, lo puse asi para probar, pero hay que ver como lo hacemos para que funcione en cualquier pc
-            Dictionary<string, List<string>> dic = doc.Root.Elements()
-                                                           .ToDictionary(
-                                                                nodo => nodo.Name.LocalName.ToLower(),
-                                                                nodo => nodo.Elements()
-                                                                            .Select(x => x.Value.ToLower())
-                                                                            .ToList()
-                                                           );
+            XDocument doc = XDocument.Load(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "CargaMasivaMap.xml"));
+            var dic = doc.Root.Elements()
+                .ToDictionary(
+                    n => Validaciones.CrearSlug(n.Name.LocalName),
+                    n => n.Elements().Select(x => x.Value).ToList()
+                );
 
-            nombrePropiedad = nombrePropiedad.ToLower();
-            nombreExcel = nombreExcel.ToLower();
+            nombrePropiedad = Validaciones.CrearSlug(nombrePropiedad);
+            nombreExcel = Validaciones.CrearSlug(nombreExcel);
 
-            if (!dic.ContainsKey(nombrePropiedad))
-                return false;
-
-            return dic[nombrePropiedad]
-                .Any(c => nombreExcel.Contains(c));
+            return dic.ContainsKey(nombrePropiedad) && dic[nombrePropiedad].Any(c => nombreExcel == Validaciones.CrearSlug(c));
         }
 
         private void btnAceptarCargaMasiva_Click(object sender, EventArgs e)
         {
-            if (dtExcel != null)
+            if (this.dtExcel != null)
             {
-                DataTable dtCarreras = new DataTable();
-                dtCarreras = carrerasLogica.ObtenerCarreras();
 
-                bool encontrada = BuscarCoincidencia("email", "mail");
 
-                foreach (DataRow dr2 in dtCarreras.Rows)
-                {
-                    var carreraNombre = dr2["Nombre"].ToString();
-                    foreach (DataRow dr in dtExcel.Rows)
-                    {
-                        var carreraExcel = dr["Carrera"].ToString();
-                        if (carreraExcel == carreraNombre)
-                        {
-                            //chequea si DNI alumno existe
-                            if (alumnosLogica.AlumnoExiste(dr["DNI:"].ToString()) != true)
-                            {
-                                if (dr.Field<string>("Sexo:") == "Femenino") dr.SetField("Sexo:", "F");
-                                else { dr.SetField("Sexo:", "M"); }
-
-                                int cortarIndice = dr["Fecha de Nacimiento:"].ToString().IndexOf(" ");
-                                string fechaNacimineto = dr["Fecha de Nacimiento:"].ToString().Substring(0, cortarIndice).Trim();
-
-                                const int MaxLength = 15;
-                                var localidadNacimiento = dr[8].ToString();
-                                if (localidadNacimiento.Length > MaxLength) localidadNacimiento = localidadNacimiento.Substring(0, MaxLength); // name = "Chris" 
-                                string FechaActual = DateTime.Now.ToString("yyyy-MM-dd");
-                                //FormAgregarModificarAlumnos frmAgregarModificarAlumno = new FormAgregarModificarAlumnos();
-
-                                var modelo = new AlumnosModelo()
-                                {
-                                    AlumnoId = this.AlumnoId,
-                                    Nombre = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(dr[4].ToString()),
-                                    Apellido = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(dr[3].ToString()),
-                                    TipoDocumento = "Dni",
-                                    NumeroDocumento = dr[5].ToString(),
-                                    EstadoCivil = dr[9].ToString(),
-                                    Sexo = Convert.ToChar(dr[6]),
-                                    //FechaNacimiento = fechaNacimineto,
-                                    LocalidadNacimiento = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(localidadNacimiento),
-                                    Calle = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(dr[11].ToString()),
-                                    Provincia = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(dr[15].ToString()),
-                                    Distrito = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(dr[13].ToString()),
-                                    Localidad = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(dr[12].ToString()),
-                                    CodigoPostal = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(dr[14].ToString()),
-                                    Celular = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(dr[10].ToString()),
-                                    Email = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(dr[1].ToString()),
-                                    FotoUrl = dr[16].ToString()
-                                };
-
-                                var modelo1 = new AlumnosCarrerasModelo()
-                                {
-                                    AlumnoId = this.AlumnoId,
-                                    AlumnoCarreraId = AlumnoCarreraId
-                                };
-
-                                if (this.Accion == "Agregar")
-                                {
-                                    AlumnosLogica alumnosLogica = new AlumnosLogica();
-                                    modelo1.AlumnoId = alumnosLogica.AgregarAlumnoCargaMasiva(modelo);
-                                    if (modelo1.AlumnoId > 0)
-                                    {
-                                        modelo1.Activo = true;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
             }
-            
-            Contenedor.AbrirFormulario<FormAlumnos>();
-            FormNotificacion.Mensaje(TipoNotificacion.Success, "Los alumnos fueron agregados con exito");
-        }             
+        }
     }
 }
