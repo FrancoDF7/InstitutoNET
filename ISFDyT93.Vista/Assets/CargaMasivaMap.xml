@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Alumnos>
-	<email>
+	<Email>
 		<Coincidencia>correo</Coincidencia>
 		<Coincidencia>correo electronico</Coincidencia>
 		<Coincidencia>email</Coincidencia>
@@ -11,9 +11,9 @@
 	    <Coincidencia>EMAIL</Coincidencia>
 	    <Coincidencia>MAIL</Coincidencia>
 	    <Coincidencia>GMAIL</Coincidencia>
-	</email>
+	</Email>
 	
-	<carreras>
+	<Carreras>
 		<Coincidencia>Carreras</Coincidencia>
 		<Coincidencia>Carrera</Coincidencia>
 		<Coincidencia>Tecnicaturas</Coincidencia>
@@ -22,7 +22,7 @@
 	    <Coincidencia>CARRERA</Coincidencia>
 	    <Coincidencia>TECNICATURAS</Coincidencia>
 	    <Coincidencia>TECNICATURA</Coincidencia>
-	</carreras>
+	</Carreras>
 
 	<apellido>
 		<Coincidencia>Apellido</Coincidencia>
