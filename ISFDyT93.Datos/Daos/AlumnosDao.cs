@@ -257,7 +257,7 @@ namespace ISFDyT93.Datos.Daos
         }
         public DataTable ObtenerLocalidadAlumnos()
         {
-            return this.Conexion.EjecutarStore("SP_ListaLocalidades");
+            return this.Conexion.EjecutarStore("ListaLocalidades");
         }
         public DataTable ObtenerDistritoAlumnos()
         {

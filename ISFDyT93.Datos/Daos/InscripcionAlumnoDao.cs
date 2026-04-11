@@ -37,7 +37,7 @@ namespace ISFDyT93.Datos.Daos
 
         public DataRow obtenerFechaIncripcion()
         {
-            string query = "SELECT TOP 1 FechaInscripcionInicio, FechaInscripcionFinal FROM CicloLectivo ORDER BY FechaInscripcionInicio";
+            string query = "SELECT TOP 1 FechaInscripcionInicio, FechaInscripcionFinal FROM CicloLectivo ORDER BY FechaInscripcionInicio DESC";
             return this.Conexion.ObtenerRegistro(query);
         }
 

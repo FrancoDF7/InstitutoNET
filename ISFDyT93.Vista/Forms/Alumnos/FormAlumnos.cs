@@ -59,6 +59,7 @@ namespace ISFDyT93.Vista.Forms.Alumnos
 
         private void RecargarGrilla(string filtro = "")
         {
+            dgvAlumnos.ClearSelection();
             var tipo = (TipoFiltroAlumno)cmbFiltroAlum.SelectedIndex;
 
             if (rbTodos.Checked == true)
@@ -100,6 +101,8 @@ namespace ISFDyT93.Vista.Forms.Alumnos
 
                 if (info.Type == DataGridViewHitTestType.Cell && info.RowIndex > -1)
                 {
+                    
+
                     dgvAlumnos.Rows[info.RowIndex].Selected = true;
                     cmsAlumnos.Show(dgvAlumnos, e.X - cmsAlumnos.Width / 2, e.Y);
                     this.AlumnoId = Convert.ToInt32(dgvAlumnos["AlumnoId", info.RowIndex].Value);
@@ -108,8 +111,10 @@ namespace ISFDyT93.Vista.Forms.Alumnos
                     ApellidoNombre = dgvAlumnos["Apellido", info.RowIndex].Value.ToString();
                     ApellidoNombre += " " + dgvAlumnos["Nombre", info.RowIndex].Value.ToString();
 
-                    
-                    tsmModificarAlumno.Visible = activo;
+                    tsmAgregarAlumno.Visible = false;
+
+
+                    tsmModificarAlumno.Visible = !activo;
                     tsmEliminarAlumno.Visible = activo;
                     tsmVerAlumno.Visible = true;
                     tsmAsignarMaterias.Visible = ((Convert.ToBoolean(dgvAlumnos["Inicializado", info.RowIndex].Value)) && activo);

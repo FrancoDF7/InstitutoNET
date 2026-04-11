@@ -8,7 +8,7 @@ namespace ISFDyT93.Datos.Core
         {
             get
             {
-                string connStr = Environment.GetEnvironmentVariable("INSTITUTO_DB_CONNECTION_STRING");
+                string connStr = @"Data Source=DESKTOP-7JRA834;Initial Catalog=instituto_db;Integrated Security=True;Persist Security Info=False;Pooling=False;MultipleActiveResultSets=False;Encrypt=False;TrustServerCertificate=False;Application Name='SQL Server Management Studio';";
                 if (string.IsNullOrWhiteSpace(connStr))
                     throw new InvalidOperationException(
                         "La variable de entorno INSTITUTO_DB_CONNECTION_STRING no está definida.");
