@@ -25,14 +25,14 @@ namespace ISFDyT93.Vista.Forms.Alumnos
 
         AlumnosModelo DatosAlumnos = null;
         AlumnosCarrerasModelo DatosAlumnosCarrera = null;
-        Negocio.Validaciones validador;
+
         #endregion
 
         public FormAgregarModificarAlumnos()
         {
             alumnosLogica = new AlumnosLogica();
             carrerasLogica = new CarrerasLogica();
-            validador = new Negocio.Validaciones();
+
             InitializeComponent();
         }
 
@@ -269,67 +269,6 @@ namespace ISFDyT93.Vista.Forms.Alumnos
         private void ObtenerAniosLectivosActivos()
         {
             cmbCicloLectivo.DataSource = new CicloLectivosLogica().ObtenerAniosCiclosLectivosActivos();
-        }
-
-        private void txtSoloNumero_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (!validador.SoloNumeros(e.KeyChar.ToString()))
-            {
-                e.Handled = true; // Bloquea la tecla
-            }
-        }
-
-        private void txtSoloLetrasEspacios_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (!validador.SoloLetrasEspacios(e.KeyChar.ToString()))
-            {
-                e.Handled = true; // Bloquea la tecla
-            }
-        }
-
-        private void txtNumeroDocumento_Leave(object sender, EventArgs e)
-        {
-            if (!validador.AlumnoNuevo(txtNumeroDocumento.Text))
-            {
-                MessageBox.Show("El numero de documento ya esta registrador");
-                txtNumeroDocumento.Focus();
-            }
-        }
-        private void txtLetrasYNumerosYEspacio_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (!validador.SoloLetrasEspaciosyNumeros(e.KeyChar.ToString()))
-            {
-                e.Handled = true; // Bloquea la tecla
-            }
-        }
-        private void txtLetrasYNumeros_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (!validador.SoloLetrasYNumeros(e.KeyChar.ToString()))
-            {
-                e.Handled = true; // Bloquea la tecla
-            }
-        }
-        private void txtValidarMail_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (!char.IsLetterOrDigit(e.KeyChar) && e.KeyChar != '@' && e.KeyChar != '.' && e.KeyChar != '_' && e.KeyChar != '-' && !char.IsControl(e.KeyChar))
-            {
-                e.Handled = true;
-            }
-        }
-
-        private void txtEmail_Leave(object sender, EventArgs e)
-        {
-            if (!validador.FormatoEmailValido(txtEmail.Text))
-            {
-                MessageBox.Show("Email inválido");
-            }
-        }
-        private void txtTexto_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (!validador.TextoParrafo(e.KeyChar.ToString()))
-            {
-                e.Handled = true; // Bloquea la tecla
-            }
         }
     }
 }
