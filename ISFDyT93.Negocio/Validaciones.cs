@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ISFDyT93.Negocio.Logica;
+using System.Windows.Forms;
 
 namespace ISFDyT93.Negocio
 {
@@ -297,6 +298,23 @@ namespace ISFDyT93.Negocio
 
             return !profesorLogica.PersonalExiste(Documento);
         }
+
+
+
+
+        #region Validaciones con Keypress
+        public static void SoloNumerosEnteros(KeyPressEventArgs e)
+        {
+            if (Char.IsDigit(e.KeyChar) || Char.IsControl(e.KeyChar))
+            {
+                e.Handled = false;
+            }
+            else
+            {
+                e.Handled = true;
+            }
+        }
+        #endregion
 
     }
 }

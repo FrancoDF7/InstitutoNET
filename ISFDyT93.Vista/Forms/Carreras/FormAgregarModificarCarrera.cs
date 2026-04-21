@@ -3,8 +3,10 @@ using System.Windows.Forms;
 using ISFDyT93.Datos.Modelos;
 using ISFDyT93.Negocio.Logica;
 using ISFDyT93.Negocio.Core.Enums;
+using static ISFDyT93.Negocio.Validaciones;
 using ISFDyT93.Vista.Core;
 using ISFDyT93.Vista.Core.Enums;
+using ISFDyT93.Negocio;
 
 namespace ISFDyT93.Vista.Forms.Carreras
 {
@@ -121,7 +123,6 @@ namespace ISFDyT93.Vista.Forms.Carreras
             txtJefeCatedra.Text = "";
             txtPlanEstudio.Text = "";
             txtResolucion.Text = "";
-            txtCorrelatividades.Text = "";
             txtImagenDescriptiva.Text = "";
             txtNumeroExpediente.Text = "";
             txtCantidadHoras.Text = "";
@@ -177,15 +178,6 @@ namespace ISFDyT93.Vista.Forms.Carreras
             }
         }
 
-        private void btnCorrelatividades_Click(object sender, EventArgs e)
-        {
-            ofdCarreras.Filter = "Archivos PDF|*.pdf";
-
-            if (ofdCarreras.ShowDialog() == DialogResult.OK)
-            {
-                txtCorrelatividades.Text = ofdCarreras.FileName;
-            }
-        }
 
         private void btnResolucion_Click(object sender, EventArgs e)
         {
@@ -216,6 +208,11 @@ namespace ISFDyT93.Vista.Forms.Carreras
             {
                 txtImagenDescriptiva.Text = ofdCarreras.FileName;
             }
+        }
+
+        private void txtDuracion_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            Validaciones.SoloNumerosEnteros(e);
         }
     }
 }

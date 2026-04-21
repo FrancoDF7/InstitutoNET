@@ -49,7 +49,7 @@ namespace ISFDyT93.Vista.Forms.Carreras
                 tsmVerCorrelatividades.Visible = false;
             }
 
-            this.Contenedor.SetTitulo($"Materias de { this.anioCarrera.AnioCarrera } año de { anioCarrera.NombreCarrera }")
+            this.Contenedor.SetTitulo($"{ this.anioCarrera.AnioCarrera } año de { anioCarrera.NombreCarrera }")
                 .SetVolver(() => {
                     this.Contenedor.AbrirFormulario<FormAniosCarreras>((form) => {
                        form.CarreraId = this.anioCarrera.CarreraId;
