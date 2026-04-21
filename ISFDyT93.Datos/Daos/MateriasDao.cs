@@ -11,16 +11,18 @@ namespace ISFDyT93.Datos.Daos
     {
         public DataTable ObtenerMaterias(int anioCarreraId, bool activo = true)
         {
-            string query = "SELECT Mat.MateriaId, Mat.Nombre, Mat.AnioCarreraId, Mat.CargaHoraria AS [Carga Horaria], Esp.Descripcion AS [Descripción], Mat.EspacioId,  COUNT(Cor.MateriaId) As Correlativas " +    
+            string query = "SELECT Mat.MateriasCodigoBloque AS [Codigo], Mat.MateriaId, Mat.Nombre, Mat.AnioCarreraId, " +
+                "Mat.CargaHoraria AS [Carga Horaria], Esp.Descripcion AS [Descripción], Mat.EspacioId,  COUNT(Cor.MateriaId) As Correlativas " +    
                 "FROM Materias as Mat " +
                 "INNER JOIN Espacios as Esp ON Esp.EspacioId = Mat.EspacioId " +
                 "LEFT JOIN Correlativas as Cor ON Cor.MateriaId = Mat.MateriaId " +
                 $"WHERE AnioCarreraId = { anioCarreraId } AND Activo = { (activo ? "1" : "0") } " +
-                "GROUP BY Mat.MateriaId, Mat.Nombre, Mat.AnioCarreraId, Mat.CargaHoraria, Esp.Descripcion, Mat.EspacioId " +
+                "GROUP BY Mat.MateriasCodigoBloque, Mat.MateriaId, Mat.Nombre, Mat.AnioCarreraId, Mat.CargaHoraria, Esp.Descripcion, Mat.EspacioId " +
                 "ORDER BY Mat.EspacioId";
 
             return this.Conexion.ObtenerRegistros(query);
         }
+
         public DataTable CargarMaterias(int anioCarreraId, bool activo = true)
         {
             string query = $"SELECT MateriaId, Nombre " +

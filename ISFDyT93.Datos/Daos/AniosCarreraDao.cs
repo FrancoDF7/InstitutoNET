@@ -9,10 +9,15 @@ namespace ISFDyT93.Datos.Daos
     {
         public DataTable ObtenerAniosCarrera(int carreraId)
         {
-            string query = "SELECT AnioCarreraId,AnioCarrera AS [Año],CantidadMaterias AS [Cantidad de Materias],CargaHorariaCompleta AS [Carga Horaria Completa] FROM AniosCarreras WHERE CarreraId = " + carreraId;
+            string query = "SELECT AniosCarrerasCodigoBloque AS [Codigo], " +
+                "AnioCarreraId,AnioCarrera AS [Año]," +
+                "CantidadMaterias AS [Cantidad de Materias]," +
+                "CargaHorariaCompleta AS [Carga Horaria Completa] " +
+                "FROM AniosCarreras WHERE CarreraId = " + carreraId;
 
             return this.Conexion.ObtenerRegistros(query);
         }
+
         public int AgregarAnio(int anioCarrera, int carreraId)
         {
             string query = "INSERT INTO AniosCarreras (AnioCarrera, CarreraId) VALUES(" + anioCarrera + "," + carreraId + ")";
