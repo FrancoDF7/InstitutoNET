@@ -140,6 +140,8 @@ namespace ISFDyT93.Vista.Forms.Alumnos
                 txtMayorOtorgadoPor.Enabled = false;
                 txtMayorPromedio.Enabled = false;
             }
+            txtTelefono.TextMaskFormat = MaskFormat.ExcludePromptAndLiterals;
+            txtCelular.TextMaskFormat = MaskFormat.ExcludePromptAndLiterals;
         }
         public void SetReadOnlyTextBox(Control parent)
         {
@@ -344,9 +346,22 @@ namespace ISFDyT93.Vista.Forms.Alumnos
 
         private void txtSoloLetrasEspacios_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (!char.IsControl(e.KeyChar) && !validador.SoloLetrasEspacios(e.KeyChar.ToString()))
+            TextBox txt = sender as TextBox;
+            // permitir teclas de control
+            if (char.IsControl(e.KeyChar))
+                return;
+
+            // bloquear espacio al inicio
+            if (char.IsWhiteSpace(e.KeyChar) && (txt.Text.Length == 0 || txt.Text.EndsWith(" ")))
             {
-                e.Handled = true; // Bloquea la tecla
+                e.Handled = true;
+                return;
+            }
+
+            // usar tu validador
+            if (!validador.SoloLetrasEspacios(e.KeyChar.ToString()))
+            {
+                e.Handled = true;
             }
         }
 
@@ -363,10 +378,21 @@ namespace ISFDyT93.Vista.Forms.Alumnos
         }
         private void txtLetrasYNumerosYEspacio_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (!char.IsControl(e.KeyChar) && !validador.SoloLetrasEspaciosyNumeros(e.KeyChar.ToString()))
+            TextBox txt = sender as TextBox;
+            if (char.IsControl(e.KeyChar))
+                return;
+
+            if (char.IsWhiteSpace(e.KeyChar) && (txt.Text.Length == 0 || txt.Text.EndsWith(" ")))
+            {
+                e.Handled = true;
+            }
+            
+
+            if(!validador.SoloLetrasEspaciosyNumeros(e.KeyChar.ToString()))
             {
                 e.Handled = true; // Bloquea la tecla
             }
+            return;
         }
         private void txtLetrasYNumeros_KeyPress(object sender, KeyPressEventArgs e)
         {
@@ -412,6 +438,40 @@ namespace ISFDyT93.Vista.Forms.Alumnos
             else
             {
                 txtCodigoPostal.Text = "";
+            }
+        }
+        
+        private void TxtQuitarCeros_Enter(object sender, EventArgs e)
+        {
+            TextBox txt = sender as TextBox;
+
+            if (txt.Text == "0")
+            {
+                txt.Text = "";
+            }
+
+            txt.SelectAll();
+        }
+        private void txtQuitarCeros_Leave(object sender, EventArgs e)
+        {
+            TextBox txt = sender as TextBox;
+
+            if (string.IsNullOrWhiteSpace(txt.Text))
+            {
+                txt.Text = "0";
+            }
+        }
+        private void RecorrerEspacios_Leave(object sender, EventArgs e)
+        {
+            MaskedTextBox txt = sender as MaskedTextBox;
+
+            if (!txt.MaskFull)
+            {
+                epvAlumnos.SetError(txt, "Formato Invalido \n Tiene que usarse este formato: \n (1234)567-8900");
+            }
+            else
+            {
+                epvAlumnos.SetError(txt, "");
             }
         }
     }
