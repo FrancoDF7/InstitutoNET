@@ -62,6 +62,8 @@
     <Compile Include="Logica\CursosLogica.cs" />
     <Compile Include="Logica\EquivalenciasLogica.cs" />
     <Compile Include="Logica\EvaluacionesLogica.cs" />
+    <Compile Include="Logica\LogicaForms\FormAgregarFechaFinales_Logica.cs" />
+    <Compile Include="Logica\LogicaForms\FormPrincipal_Logica.cs" />
     <Compile Include="Logica\HorariosLogica.cs" />
     <Compile Include="Logica\InscripcionAlumnoLogica.cs" />
     <Compile Include="Logica\LicenciaServicioLogica.cs" />
