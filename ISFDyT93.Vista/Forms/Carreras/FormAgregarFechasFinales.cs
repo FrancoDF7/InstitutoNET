@@ -12,6 +12,7 @@ using ISFDyT93.Vista.Core.Enums;
 using ISFDyT93.Negocio.Logica;
 using ISFDyT93.Negocio.Core.Enums;
 using ISFDyT93.Datos.Daos;
+using ISFDyT93.Negocio.Logica.LogicaForms;
 
 namespace ISFDyT93.Vista.Forms.Carreras
 {
@@ -32,6 +33,7 @@ namespace ISFDyT93.Vista.Forms.Carreras
         #region Privates
         private MateriasLogica materiasLogica;
         private MesasFinalesLogica mesasFinalesLogica;
+        private FormAgregarFechaFinales_Logica frmLogica;
         private DateTime fecha;
         private string title;
         #endregion
@@ -40,7 +42,8 @@ namespace ISFDyT93.Vista.Forms.Carreras
         {
             InitializeComponent();
             materiasLogica = new MateriasLogica();
-            mesasFinalesLogica = new MesasFinalesLogica(); 
+            mesasFinalesLogica = new MesasFinalesLogica();
+            frmLogica = new FormAgregarFechaFinales_Logica(mesasFinalesLogica);
         }
 
         private void FormAgregarMesas_Load(object sender, EventArgs e)
@@ -78,118 +81,87 @@ namespace ISFDyT93.Vista.Forms.Carreras
 
         private void CargarMaterias()
         {
-            cmbMateria.DataSource = materiasLogica.MateriasId(this.CarreraId);
-            cmbMateria.ValueMember = "MateriaId";
-            cmbMateria.DisplayMember = "Nombre";
+            frmLogica.CargaCombo(cmbMateria, 
+                materiasLogica.MateriasId(CarreraId),
+                "MateriaId",
+                "Nombre");
         }
 
         private void CargarProfesorTitular()
         {
-            cmbPresidenteMesa.DataSource = mesasFinalesLogica.ObtenerProfesorTitular(Convert.ToInt32(cmbMateria.SelectedValue));
-            cmbPresidenteMesa.ValueMember = "PersonalId";
-            cmbPresidenteMesa.DisplayMember = "Nombre";
-        }
-        private void CargarVocales(int PersonalId)
-        {
-            cmbVocalMesa.DataSource = mesasFinalesLogica.ObtenerVocales(this.CarreraId, PersonalId);
-            cmbVocalMesa.ValueMember = "PersonalId";
-            cmbVocalMesa.DisplayMember = "Nombre";
+            frmLogica.CargaCombo(cmbPresidenteMesa,
+                mesasFinalesLogica.ObtenerProfesorTitular(Convert.ToInt32(cmbMateria.SelectedValue)),
+                "PersonalId",
+                "Nombre");
         }
 
+        private void CargarVocales(int PersonalId)
+        {
+            frmLogica.CargaCombo(cmbVocalMesa,
+                mesasFinalesLogica.ObtenerVocales(CarreraId, PersonalId),
+                "PersonalId",
+                "Nombre");
+        }
+
+        
         private void dtpFechaMesa_ValueChanged(object sender, EventArgs e)
         {
-            dtpFechaMesa.CustomFormat = "dd/MM/yyyy";
-            int res = DateTime.Compare(dtpFechaMesa.Value.Date, DateTime.Now);
-            if (res > 0)
-            {
-                fecha = dtpFechaMesa.Value.Date;
-                ValidarCampos();
-            }
-                
-            else
-            {
-                MessageBox.Show("Seleccione una fecha posterior al día de hoy.", "Fecha errónea", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            frmLogica.ValidarFechaMesa(dtpFechaMesa,ref fecha, ValidarCampos);
         }
 
         private void btnAgregar_Click(object sender, EventArgs e)
         {
+            var logica = new FormAgregarFechaFinales_Logica(mesasFinalesLogica);
 
-            if (this.Accion == TipoAccion.Modificar)
+            bool res = logica.ProcesarAccion(
+                Accion,
+                fecha,
+                CarreraId,
+                AnioLectivoId,
+                Convert.ToInt32(cmbTurno.SelectedValue),                
+                this.MesaFinalId,
+                Convert.ToInt32(cmbMateria.SelectedValue),
+                Convert.ToInt32(cmbPresidenteMesa.SelectedValue),
+                Convert.ToInt32(cmbVocalMesa.SelectedValue));
+
+            if (res)
             {
-                int res = mesasFinalesLogica.ModificarMesa(fecha, Convert.ToInt32(cmbTurno.SelectedValue), Convert.ToInt32(cmbPresidenteMesa.SelectedValue), Convert.ToInt32(cmbVocalMesa.SelectedValue), this.MesaFinalId);
-                if (res > 0)
+                Notificar(TipoNotificacion.Success,
+                    Accion == TipoAccion.Modificar ? "Mesa modificada correctamente" : "Mesa agregada correctamente");
+
+                Contenedor.AbrirFormulario<FormMesasFinales>(form =>
                 {
-                    Notificar(TipoNotificacion.Success, "Mesa modificada correctamente");
-                    Contenedor.AbrirFormulario<FormMesasFinales>(form =>
-                    {
-                        form.CarreraId = this.CarreraId;
-                        form.NombreCarrera = this.NombreCarrera;
-                        form.AnioLectivoId = this.AnioLectivoId;
-                        form.TurnoId = this.TurnoId;
-                        form.LlamadoId = this.LlamadoId;
-                        if (this.LlamadoId == 3)
-                            form.FechaUnica = true;
-                    });
-                }
-                else
-                    Notificar(TipoNotificacion.Error, "Ocurrió un error");
+                    form.CarreraId = CarreraId;
+                    form.NombreCarrera = NombreCarrera;
+                    form.AnioLectivoId = AnioLectivoId;
+                    form.TurnoId = TurnoId;
+                    form.LlamadoId = LlamadoId;
+                    if (LlamadoId == 3)
+                        form.FechaUnica = true;
+                });
             }
-            if (this.Accion == TipoAccion.Agregar)
-            {
-                int res = mesasFinalesLogica.AgregarMesa(this.CarreraId, fecha, 4, 3, Convert.ToInt32(cmbMateria.SelectedValue), Convert.ToInt32(cmbPresidenteMesa.SelectedValue), Convert.ToInt32(cmbVocalMesa.SelectedValue), this.AnioLectivoId);
-                if (res > 0)
-                {
-                    Notificar(TipoNotificacion.Success, "Mesa agregada correctamente");
-                    Contenedor.AbrirFormulario<FormMesasFinales>(form =>
-                    {
-                        form.CarreraId = this.CarreraId;
-                        form.NombreCarrera = this.NombreCarrera;
-                        form.AnioLectivoId = this.AnioLectivoId;
-                        form.TurnoId = this.TurnoId;
-                        form.LlamadoId = this.LlamadoId;
-                        if (this.LlamadoId == 3)
-                            form.FechaUnica = true;
-                    });
-                }
-                else
-                    Notificar(TipoNotificacion.Error, "Ocurrió un error");
-            }
+            else            
+                Notificar(TipoNotificacion.Error, "Ocurrió un error");            
 
         }
+
         private void ValidarCampos()
         {
-            if ((cmbTurno.Text != "")&&(cmbMateria.Text != "")&&(cmbPresidenteMesa.Text != "")&&(cmbVocalMesa.Text != ""))
-                btnAgregar.Enabled = true;
+            frmLogica.ValidarCampos(btnAgregar, 
+                cmbTurno, 
+                cmbMateria, 
+                cmbPresidenteMesa, 
+                cmbVocalMesa);
         }
 
         private void CargarTurnoMateria(bool especial)
         {
-            switch (this.Accion)
-            {
-                case TipoAccion.Agregar:
-                    {
-                        cmbTurno.DataSource = mesasFinalesLogica.ObtenerTurnos(especial);
-                        cmbTurno.DisplayMember = "Descripcion";
-                        cmbTurno.ValueMember = "TurnoId";
-                        break;
-                    }
-                case TipoAccion.Modificar:
-                    {
-                        cmbTurno.DataSource = mesasFinalesLogica.ObtenerTurnoMesa(this.MesaFinalId);
-                        cmbTurno.DisplayMember = "Descripcion";
-                        cmbTurno.ValueMember = "TurnoId";
-                        cmbMateria.DataSource = mesasFinalesLogica.ObtenerMateriaFinal(this.MesaFinalId);
-                        cmbMateria.DisplayMember = "Nombre";
-                        cmbMateria.ValueMember = "MateriaId";
-                        break;
-                    }
-            }
+            frmLogica.CargarTurnoMateria(Accion, cmbTurno, cmbMateria, mesasFinalesLogica, MesaFinalId, true);
         }
 
         private void cmbPresidenteMesa_SelectionChangeCommitted(object sender, EventArgs e)
         {
-            ValidarCampos();
+            ValidarCampos();            
         }
 
         private void cmbVocalMesa_SelectionChangeCommitted(object sender, EventArgs e)

@@ -15,6 +15,7 @@ using ISFDyT93.Negocio.Logica;
 using ISFDyT93.Datos;
 using ISFDyT93.Datos.Daos;
 
+
 namespace ISFDyT93.Vista.Forms
 {
     public partial class FormPrincipal : Form
@@ -24,7 +25,8 @@ namespace ISFDyT93.Vista.Forms
         private IconButton currentBtn;
         private Action actionVolver;
         private MesasFinalesLogica mesasLogica;
-        
+        private FormPrincipal_Logica frmLogica;
+
         #endregion
 
         public FormPrincipal()
@@ -75,10 +77,10 @@ namespace ISFDyT93.Vista.Forms
         }
 
         #region Botonera Izquierda
-        
+
         private void ActivarBoton(object sender, Color color)
         {
-            if(sender != null && sender != currentBtn)
+            if (sender != null && sender != currentBtn)
             {
                 this.DesactivarBoton();
 
@@ -92,7 +94,7 @@ namespace ISFDyT93.Vista.Forms
 
         private void DesactivarBoton()
         {
-            if(currentBtn != null)
+            if (currentBtn != null)
             {
                 currentBtn.BackColor = Color.FromArgb(51, 51, 76);
                 currentBtn.ForeColor = Color.White;
@@ -117,7 +119,7 @@ namespace ISFDyT93.Vista.Forms
             this.ActivarBoton(sender, ThemeColor.GetColor());
 
             this.AbrirFormulario<FormCarreras>();
-            
+
         }
 
         private void btnPersonal_Click(object sender, EventArgs e)
@@ -149,9 +151,9 @@ namespace ISFDyT93.Vista.Forms
             this.AbrirFormulario<FormCicloLectivo>();
         }
 
-        
+
         private void btnOpciones_Click(object sender, EventArgs e)
-        {            
+        {
             var control = sender as Control;
             cmsOpciones.Show(pnlIzquierdo, control.Right, control.Top);
         }
@@ -161,8 +163,8 @@ namespace ISFDyT93.Vista.Forms
             btnHome_Click(btnHome, EventArgs.Empty);
             Cache.FormPrincipal = this;
 
-        }      
-            
+        }
+
         private void Parametros_Click(object sender, EventArgs e)
         {
             this.ActivarBoton(btnOpciones, ThemeColor.GetColor());
@@ -178,13 +180,9 @@ namespace ISFDyT93.Vista.Forms
 
         private void tsmPruebaSP_Click(object sender, EventArgs e)
         {
-            DataTable dt = mesasLogica.ExistenMesasFinales(2024);
-            int marzo = Convert.ToInt32(dt.Rows[0]["Marzo"]);
-            int julio = Convert.ToInt32(dt.Rows[0]["Julio"]);
-            int diciembre = Convert.ToInt32(dt.Rows[0]["Diciembre"]);
-            MessageBox.Show($"{marzo}, {julio}, {diciembre}");
+            frmLogica.ComprobarMesasFinales();
         }
 
 
     }
-    }
+}
