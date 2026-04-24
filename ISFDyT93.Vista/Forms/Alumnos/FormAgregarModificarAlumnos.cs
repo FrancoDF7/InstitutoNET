@@ -66,6 +66,8 @@ namespace ISFDyT93.Vista.Forms.Alumnos
             cmbCarreraId.DisplayMember = "Descripción";
             cmbMayorTitulo.Text = "Ninguno";
 
+            SetReadOnly(grbDocumentosEntregar);
+
             this.Contenedor.SetVolver(() =>
             {
                 this.Contenedor.AbrirFormulario<FormAlumnos>();
@@ -84,11 +86,11 @@ namespace ISFDyT93.Vista.Forms.Alumnos
             {
                 // Usamos un método recursivo para que funcione tanto con TextBox directos del GroupBox
                 // como con TextBox anidados dentro de Panels u otros contenedores.
-                SetReadOnlyTextBox(grbDatosPersonales);
-                SetReadOnlyTextBox(grbFormacion);
-                SetReadOnlyTextBox(grbDocumentosEntregar);
-                SetReadOnlyTextBox(grbFichaSalud);
-                SetReadOnlyTextBox(grbDireccion);
+                SetReadOnly(grbDatosPersonales);
+                SetReadOnly(grbFormacion);
+                SetReadOnly(grbDocumentosEntregar);
+                SetReadOnly(grbFichaSalud);
+                SetReadOnly(grbDireccion);
 
                 btnGuardar.Visible = false;
                 
@@ -143,7 +145,7 @@ namespace ISFDyT93.Vista.Forms.Alumnos
             txtTelefono.TextMaskFormat = MaskFormat.ExcludePromptAndLiterals;
             txtCelular.TextMaskFormat = MaskFormat.ExcludePromptAndLiterals;
         }
-        public void SetReadOnlyTextBox(Control parent)
+        public void SetReadOnly(Control parent)
         {
             foreach (Control ctrl in parent.Controls)
             {
@@ -159,7 +161,11 @@ namespace ISFDyT93.Vista.Forms.Alumnos
                 // Recursividad para aplicar a controles anidados
                 if (ctrl.HasChildren)
                 {
-                    SetReadOnlyTextBox(ctrl);
+                    SetReadOnly(ctrl);
+                }
+                if (ctrl is CheckBox cb)
+                {
+                    cb.Enabled = false;
                 }
             }
         }
