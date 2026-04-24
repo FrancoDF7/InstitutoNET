@@ -1,13 +1,14 @@
-﻿using System;
+﻿using ISFDyT93.Datos.Modelos;
+using ISFDyT93.Negocio.Logica;
+using ISFDyT93.Vista.Core;
+using ISFDyT93.Vista.Core.Enums;
+using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using ISFDyT93.Negocio.Logica;
-using ISFDyT93.Datos.Modelos;
-using ISFDyT93.Vista.Core;
-using System.Collections.Generic;
-using ISFDyT93.Vista.Core.Enums;
+using static ISFDyT93.Negocio.Logica.InscripcionAlumnoLogica;
 
 namespace ISFDyT93.Vista.Forms.Alumnos
 {
@@ -24,7 +25,9 @@ namespace ISFDyT93.Vista.Forms.Alumnos
         private string MateriaId { get; set; }
         private string CursoId { get; set; }
 
-        private List<string> ltsMateriaIdCursoId = new List<string>();
+        //private List<string> ltsMateriaIdCursoId = new List<string>();
+        private List<MateriaAsignadaModelo> ltsMateriaIdCursoId = new List<MateriaAsignadaModelo>();
+
         private InscripcionAlumnoLogica InscripcionAlumnoLogica = new InscripcionAlumnoLogica();
         #endregion
 
@@ -40,7 +43,7 @@ namespace ISFDyT93.Vista.Forms.Alumnos
             dt.Rows.InsertAt(dr, 0);
             cmbAnio.DataSource = dt;
             cmbAnio.ValueMember = "Anio";
-            cmbAnio.DisplayMember = "Anio";            
+            cmbAnio.DisplayMember = "Anio";
 
             cargarGrilla();
 
@@ -69,7 +72,7 @@ namespace ISFDyT93.Vista.Forms.Alumnos
             if (dgvInscripcionAlumnos.Columns.Contains("CursoId"))
                 dgvInscripcionAlumnos.Columns["CursoId"].Visible = false;
             if (dgvInscripcionAlumnos.Columns.Contains("MateriaId"))
-                dgvInscripcionAlumnos.Columns["MateriaId"].Visible = false;          
+                dgvInscripcionAlumnos.Columns["MateriaId"].Visible = false;
             if (dgvInscripcionAlumnos.Columns.Contains("Año"))
                 dgvInscripcionAlumnos.Columns["Año"].FillWeight = 50;
             if (dgvInscripcionAlumnos.Columns.Contains("Carrera"))
@@ -81,14 +84,14 @@ namespace ISFDyT93.Vista.Forms.Alumnos
 
             DataGridViewColumn column = new DataGridViewTextBoxColumn();
             column.Name = "Asignar";
-            column.HeaderText = "Asignar";                
+            column.HeaderText = "Asignar";
             dgvInscripcionAlumnos.Columns.Add(column);
             if (dgvInscripcionAlumnos.Columns.Contains("Asignar"))
                 dgvInscripcionAlumnos.Columns["Asignar"].FillWeight = 50;
-            
-            foreach(DataGridViewRow row in dgvInscripcionAlumnos.Rows)
+
+            foreach (DataGridViewRow row in dgvInscripcionAlumnos.Rows)
             {
-                if (ltsMateriaIdCursoId.IndexOf(row.Cells["MateriaId"].Value.ToString() + row.Cells["CursoId"].Value.ToString()) != -1 )
+                if (ltsMateriaIdCursoId.Any(x => x.MateriaId == Convert.ToInt32(row.Cells["MateriaId"].Value) && x.CursoId == Convert.ToInt32(row.Cells["CursoId"].Value)))
                 {
                     row.Cells["Asignar"].Value = "Asignado";
                     row.Cells["Asignar"].Style.ForeColor = Color.Green;
@@ -98,8 +101,9 @@ namespace ISFDyT93.Vista.Forms.Alumnos
 
         private void dgvInscripcionAlumnos_MouseUp(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Right)            {
-                
+            if (e.Button == MouseButtons.Right)
+            {
+
                 if (e.X > -1 && e.Y > -1)
                 {
                     DataGridView.HitTestInfo info = dgvInscripcionAlumnos.HitTest(e.X, e.Y);
@@ -112,12 +116,35 @@ namespace ISFDyT93.Vista.Forms.Alumnos
 
         private void tsmAsignar_Click(object sender, EventArgs e)
         {
-            CursoId = dgvInscripcionAlumnos.Rows[fila].Cells["CursoId"].Value.ToString();
-            MateriaId = dgvInscripcionAlumnos.Rows[fila].Cells["MateriaId"].Value.ToString();
-            ltsMateriaIdCursoId.Add(MateriaId + CursoId);
-            dgvInscripcionAlumnos.Rows[fila].Cells["Asignar"].Style.ForeColor = Color.Green;
-            dgvInscripcionAlumnos.Rows[fila].Cells["Asignar"].Value = "Asignado";
+            int materiaId = Convert.ToInt32(dgvInscripcionAlumnos.Rows[fila].Cells["MateriaId"].Value);
+            int cursoId = Convert.ToInt32(dgvInscripcionAlumnos.Rows[fila].Cells["CursoId"].Value);
+
+            bool existe = ltsMateriaIdCursoId.Any(x => x.MateriaId == materiaId && x.CursoId == cursoId);
+
+            if (!existe)
+            {
+                ltsMateriaIdCursoId.Add(new MateriaAsignadaModelo
+                {
+                    MateriaId = materiaId,
+                    CursoId = cursoId
+                });
+            }
+
+            cargarGrilla();
             dgvInscripcionAlumnos.ClearSelection();
+            //CursoId = dgvInscripcionAlumnos.Rows[fila].Cells["CursoId"].Value.ToString();
+            //MateriaId = dgvInscripcionAlumnos.Rows[fila].Cells["MateriaId"].Value.ToString();
+            //ltsMateriaIdCursoId.Add(MateriaId + CursoId);
+            //InscripcionAlumnoLogica.AsignarMateria(MateriaId, CursoId);
+            //dgvInscripcionAlumnos.Rows[fila].Cells["Asignar"].Style.ForeColor = Color.Green;
+            //dgvInscripcionAlumnos.Rows[fila].Cells["Asignar"].Value = "Asignado";
+            /* string key = MateriaId + CursoId;
+
+             if (!ltsMateriaIdCursoId.Contains(key))
+                 ltsMateriaIdCursoId.Add(key);
+             //InscripcionAlumnoLogica.AsignarMateria(MateriaId, CursoId);
+             cargarGrilla();
+             dgvInscripcionAlumnos.ClearSelection();*/
         }
         #endregion
         #region Botones
@@ -127,6 +154,22 @@ namespace ISFDyT93.Vista.Forms.Alumnos
         }
         private void btnGuardar_Click(object sender, EventArgs e)
         {
+            bool ok = InscripcionAlumnoLogica.GuardarMateriasAsignadas(
+             this.AlumnoId,
+             this.ltsMateriaIdCursoId
+             );
+
+            if (ok)
+            {
+                Notificar(TipoNotificacion.Success, "Materias asignadas correctamente");
+                ltsMateriaIdCursoId.Clear();
+                cargarGrilla();
+            }
+            else
+            {
+                Notificar(TipoNotificacion.Warning, "No se pudieron guardar las materias seleccionadas");
+            }
+            /*
             int count = 0;
             int countOk = 0;
             for (int i = 0; i <= dgvInscripcionAlumnos.Rows.Count - 1; i++)
@@ -149,7 +192,7 @@ namespace ISFDyT93.Vista.Forms.Alumnos
 
             if (count == countOk)
                 Notificar(TipoNotificacion.Success, "Actualizado correctamente");
-            cargarGrilla();
+            cargarGrilla();*/
         }
         #endregion
 
