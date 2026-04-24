@@ -33,6 +33,7 @@ namespace ISFDyT93.Vista.Forms
         {
             InitializeComponent();
             mesasLogica = new MesasFinalesLogica();
+            frmLogica = new FormPrincipal_Logica();
         }
 
         //Funcion para abrir otros formulario en el panel
