@@ -1,5 +1,6 @@
 using ISFDyT93.Datos.Modelos;
 using ISFDyT93.Negocio.Logica;
+using System.Collections.Generic;
 using System;
 using System.Data;
 using System.Linq;
@@ -35,10 +36,31 @@ namespace ISFDyT93.Vista.Forms.Alumnos
             validador = new Negocio.Validaciones();
             InitializeComponent();
         }
+        private Dictionary<string, string> codigosPostales = new Dictionary<string, string>()
+        {
 
+            { "san vicente", "1865" },
+
+            { "alejandro korn", "1864" },
+
+            { "guernica", "1862" },
+
+            { "brandsen", "1980" },
+
+            { "glew", "1856" }
+
+        };
         private void FormAgregarModificarAlumnos_Load(object sender, EventArgs e)
         {
             ObtenerAniosLectivosActivos();
+
+            cmbSexo.Items.Clear();
+            cmbSexo.Items.Add("Femenino");
+            cmbSexo.Items.Add("Masculino");
+            cmbSexo.Items.Add("Sin Especificar");
+            cmbSexo.Items.Add(" otro");
+            dtpFechaNacimiento.MaxDate = DateTime.Now.AddYears(-17);
+
             cmbCarreraId.DataSource = carrerasLogica.ObtenerCarreras();
             cmbCarreraId.ValueMember = "CarreraId";
             cmbCarreraId.DisplayMember = "Descripción";
@@ -231,6 +253,8 @@ namespace ISFDyT93.Vista.Forms.Alumnos
 
         private void btnGuardar_Click(object sender, EventArgs e)
         {
+            if (!ValidarFormulario())
+                return;
             var alumno = this.MapToModel<AlumnosModelo>(DatosAlumnos);
             var alumnoCarrera = this.MapToModel<AlumnosCarrerasModelo>(DatosAlumnosCarrera, grbCarrera.Controls);
 
@@ -280,7 +304,15 @@ namespace ISFDyT93.Vista.Forms.Alumnos
                 this.MostrarErrores(epvAlumnos, alumno.Errores);
             }
         }
-        
+        private bool ValidarFormulario()
+        {
+            if (!validador.Obligatorio(txtLocalidad.Text))
+
+                return false;
+
+            return true;
+
+        }
         private void ActualizarAutoComplete()
         {            
             txtPaisNacimiento.AutoCompleteCustomSource.AddRange(alumnosLogica.ObtenerPaisNacimientoAlumnos());       
@@ -362,6 +394,20 @@ namespace ISFDyT93.Vista.Forms.Alumnos
             if (!char.IsControl(e.KeyChar) && !validador.TextoParrafo(e.KeyChar.ToString()))
             {
                 e.Handled = true; // Bloquea la tecla
+            }
+        }
+
+        private void txtLocalidad_TextChanged(object sender, EventArgs e)
+        {
+            string localidad = txtLocalidad.Text.Trim().ToLower();
+
+            if (codigosPostales.ContainsKey(localidad))
+            {
+                txtCodigoPostal.Text = codigosPostales[localidad];
+            }
+            else
+            {
+                txtCodigoPostal.Text = "";
             }
         }
     }
