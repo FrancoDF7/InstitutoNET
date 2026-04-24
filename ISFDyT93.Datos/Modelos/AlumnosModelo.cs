@@ -42,12 +42,14 @@ namespace ISFDyT93.Datos.Modelos
         [SoloNumeros]
         [Obligatorio]
         public string Numero { get; set; }
+
         [SoloNumeros]
-        //[Obligatorio]
         public string Piso { get; set; }
-        [SoloLetras]
+
+        [SoloLetrasNumerosEspacios]
         public string Departamento { get; set; }
-        [SoloLetrasEspacios]
+
+        
         [Obligatorio]
         public string Provincia { get; set; }
         [SoloLetrasEspacios]
@@ -159,6 +161,7 @@ namespace ISFDyT93.Datos.Modelos
 
         [Obligatorio]
         public string ContactoEmergencia { get; set; }
+
         [Obligatorio]
         [SoloNumeros]
         public string TelefonoContacto { get; set; }

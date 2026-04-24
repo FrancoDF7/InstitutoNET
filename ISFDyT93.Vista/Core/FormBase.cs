@@ -152,6 +152,13 @@ namespace ISFDyT93.Vista.Core
                     var txtBox = control as TextBox;
                     value = txtBox.Text;
                 }
+                else if (control.GetType() == typeof(MaskedTextBox))
+                {
+                    var maskedtxtBox = control as MaskedTextBox;
+
+                    var mtb = control as MaskedTextBox;
+                    value = mtb.Text;
+                }
                 else if (control.GetType() == typeof(ComboBox))
                 {
                     var cmbBox = control as ComboBox;
