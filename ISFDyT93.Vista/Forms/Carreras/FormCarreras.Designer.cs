@@ -70,7 +70,7 @@ namespace ISFDyT93.Vista.Forms.Carreras
             this.tsmActivar,
             this.tsmDarAlta});
             this.cmsCarreras.Name = "contextMenuStrip1";
-            this.cmsCarreras.Size = new System.Drawing.Size(209, 296);
+            this.cmsCarreras.Size = new System.Drawing.Size(209, 274);
             // 
             // tsmAgregarCarrera
             // 
@@ -207,7 +207,7 @@ namespace ISFDyT93.Vista.Forms.Carreras
             this.dgvCarreras.Name = "dgvCarreras";
             this.dgvCarreras.ReadOnly = true;
             this.dgvCarreras.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
             dataGridViewCellStyle3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(76)))));
             dataGridViewCellStyle3.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             dataGridViewCellStyle3.ForeColor = System.Drawing.Color.White;
@@ -217,6 +217,7 @@ namespace ISFDyT93.Vista.Forms.Carreras
             this.dgvCarreras.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
             this.dgvCarreras.RowHeadersVisible = false;
             this.dgvCarreras.RowHeadersWidth = 62;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
             dataGridViewCellStyle4.BackColor = System.Drawing.Color.White;
             dataGridViewCellStyle4.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             dataGridViewCellStyle4.ForeColor = System.Drawing.Color.Black;
