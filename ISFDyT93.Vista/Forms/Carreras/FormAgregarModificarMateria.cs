@@ -1,13 +1,14 @@
-﻿using System;
-using System.Windows.Forms;
-using ISFDyT93.Negocio.Logica;
-using ISFDyT93.Negocio.Core.Enums;
+﻿using ISFDyT93.Datos.Core.Attributes.Validaciones;
 using ISFDyT93.Datos.Modelos;
+using ISFDyT93.Negocio.Core.Enums;
+using ISFDyT93.Negocio.Logica;
 using ISFDyT93.Vista.Core;
-using System.Linq;
-using System.Data;
 using ISFDyT93.Vista.Core.Enums;
 using ISFDyT93.Vista.Forms.Componetes;
+using System;
+using System.Data;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace ISFDyT93.Vista.Forms.Carreras
 {
@@ -167,6 +168,14 @@ namespace ISFDyT93.Vista.Forms.Carreras
 
             txtNombre.AutoCompleteCustomSource.AddRange(listaMaterias);
         }
+
+        private void txtNombre_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            //Elimina saltos de linea invisibles y espacios al principio y final del texto.
+            string limpio = LimpiarTexto.QuitarSaltosDeLineaYEspacios(txtNombre.Text);
+            txtNombre.Text = limpio;
+        }
+
     }
 }
 

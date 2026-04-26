@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Attributes\Validaciones\LimpiarTexto.cs" />
     <Compile Include="Core\Cache.cs" />
     <Compile Include="Core\Attributes\Validaciones\MayorQue.cs" />
     <Compile Include="Daos\AlumnosDao.cs" />

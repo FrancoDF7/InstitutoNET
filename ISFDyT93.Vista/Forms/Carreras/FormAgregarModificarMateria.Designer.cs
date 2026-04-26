@@ -65,6 +65,7 @@
             this.txtNombre.Name = "txtNombre";
             this.txtNombre.Size = new System.Drawing.Size(382, 27);
             this.txtNombre.TabIndex = 0;
+            this.txtNombre.Validating += new System.ComponentModel.CancelEventHandler(this.txtNombre_Validating);
             // 
             // txtCargaHoraria
             // 
