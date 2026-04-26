@@ -228,6 +228,7 @@ namespace ISFDyT93.Vista.Forms.Carreras
             this.dgvCarreras.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvCarreras.Size = new System.Drawing.Size(777, 436);
             this.dgvCarreras.TabIndex = 0;
+            this.dgvCarreras.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dgvCarreras_CellFormatting);
             this.dgvCarreras.MouseUp += new System.Windows.Forms.MouseEventHandler(this.dgvCarreras_MouseUp);
             // 
             // rbActivos

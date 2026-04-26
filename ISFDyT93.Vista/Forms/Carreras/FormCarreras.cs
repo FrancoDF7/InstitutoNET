@@ -439,6 +439,11 @@ namespace ISFDyT93.Vista.Forms.Carreras
         {
             ExistenMesasFinales();
         }
+
+        private void dgvCarreras_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            CarreraEstados();
+        }
     }
 }
 
