@@ -1,4 +1,4 @@
-using ISFDyT93.Datos.Modelos;
+using ISFDyT93.Entidades.Modelos;
 using ISFDyT93.Negocio.Logica;
 using System.Collections.Generic;
 using System;
@@ -13,7 +13,7 @@ namespace ISFDyT93.Vista.Forms.Alumnos
 {
     public partial class FormAgregarModificarAlumnos : FormBase
     {
-        #region Propuedades Públicas
+        #region Propuedades Pï¿½blicas
         public int AlumnoId { get; set; }
         public TipoAccion Accion { get; set; }
         #endregion
@@ -63,7 +63,7 @@ namespace ISFDyT93.Vista.Forms.Alumnos
 
             cmbCarreraId.DataSource = carrerasLogica.ObtenerCarreras();
             cmbCarreraId.ValueMember = "CarreraId";
-            cmbCarreraId.DisplayMember = "Descripción";
+            cmbCarreraId.DisplayMember = "DescripciÃ³n";
             cmbMayorTitulo.Text = "Ninguno";
 
             SetReadOnly(grbDocumentosEntregar);
@@ -84,7 +84,7 @@ namespace ISFDyT93.Vista.Forms.Alumnos
 
             if (this.Accion == TipoAccion.Ver)
             {
-                // Usamos un método recursivo para que funcione tanto con TextBox directos del GroupBox
+                // Usamos un mÃ©todo recursivo para que funcione tanto con TextBox directos del GroupBox
                 // como con TextBox anidados dentro de Panels u otros contenedores.
                 SetReadOnly(grbDatosPersonales);
                 SetReadOnly(grbFormacion);
@@ -149,7 +149,7 @@ namespace ISFDyT93.Vista.Forms.Alumnos
         {
             foreach (Control ctrl in parent.Controls)
             {
-                // Para los TextBox: poner ReadOnly = true (no deshabilitar), así el usuario puede copiar texto al ver.
+                // Para los TextBox: poner ReadOnly = true (no deshabilitar), asÃ­ el usuario puede copiar texto al ver.
                 if (ctrl is TextBox tb)
                 {
                     tb.ReadOnly = true;
@@ -329,15 +329,15 @@ namespace ISFDyT93.Vista.Forms.Alumnos
 
         }
         private void ActualizarAutoComplete()
-        {            
-            txtPaisNacimiento.AutoCompleteCustomSource.AddRange(alumnosLogica.ObtenerPaisNacimientoAlumnos());       
-            
-            txtLocalidadNacimiento.AutoCompleteCustomSource.AddRange(alumnosLogica.ObtenerLocalidadAlumnos());  
-            
-            txtLocalidad.AutoCompleteCustomSource.AddRange(alumnosLogica.ObtenerLocalidadAlumnos());       
-            
-            txtDistrito.AutoCompleteCustomSource.AddRange(alumnosLogica.ObtenerDistritoAlumnos());     
-            
+        {
+            txtPaisNacimiento.AutoCompleteCustomSource.AddRange(alumnosLogica.ObtenerPaisNacimientoAlumnos());
+
+            txtLocalidadNacimiento.AutoCompleteCustomSource.AddRange(alumnosLogica.ObtenerLocalidadAlumnos());
+
+            txtLocalidad.AutoCompleteCustomSource.AddRange(alumnosLogica.ObtenerLocalidadAlumnos());
+
+            txtDistrito.AutoCompleteCustomSource.AddRange(alumnosLogica.ObtenerDistritoAlumnos());
+
             txtProvincia.AutoCompleteCustomSource.AddRange(alumnosLogica.ObtenerProvinciaAlumnos());
         }
         private void ObtenerAniosLectivosActivos()
@@ -424,7 +424,7 @@ namespace ISFDyT93.Vista.Forms.Alumnos
                 return;
             if (!validador.FormatoEmailValido(txtEmail.Text))
             {
-                MessageBox.Show("Email inválido");
+                MessageBox.Show("Email invÃ¡lido");
                 txtEmail.Focus();
             }
         }
