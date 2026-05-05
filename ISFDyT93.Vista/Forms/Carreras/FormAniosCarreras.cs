@@ -12,6 +12,7 @@ namespace ISFDyT93.Vista.Forms.Carreras
         #region Propiedades Públicas
         public FormPrincipal Contenedor { get; set; }
         public int CarreraId { get; set; }
+        public string AniosCarreraCodigoBloque { get; set; }    
 
         #endregion
 
@@ -47,6 +48,9 @@ namespace ISFDyT93.Vista.Forms.Carreras
                 tsmDesactivarAnio.Visible = false;
 
                 DataGridView.HitTestInfo info = dgvAniosCarrera.HitTest(e.X, e.Y);
+
+                //Almacena en la variable el codigo de bloque de la fila a la que se hizo click
+                AniosCarreraCodigoBloque = ObtenerValorCelda(dgvAniosCarrera, 0, "Código");
 
                 if (info.Type == DataGridViewHitTestType.Cell && info.RowIndex > -1)
                 {
@@ -102,6 +106,7 @@ namespace ISFDyT93.Vista.Forms.Carreras
                 Contenedor.AbrirFormulario<FormMateriasAnioCarrera>(form =>
                 {
                     form.AnioCarreraId = this.AnioCarreraId;
+                    form.aniosCarrerasCodigoBloque = this.AniosCarreraCodigoBloque;
                 });
             }
         }
@@ -172,6 +177,16 @@ namespace ISFDyT93.Vista.Forms.Carreras
         {
             AniosLogica.EliminarAnios(AnioCarreraId);
             this.RecargarGrilla();
+        }
+
+
+        private string ObtenerValorCelda(DataGridView dgv, int rowIndex, string nombreColumna)
+        {
+            if (rowIndex >= 0 && dgv.Rows[rowIndex].Cells[nombreColumna].Value != null)
+            {
+                return dgv.Rows[rowIndex].Cells[nombreColumna].Value.ToString();
+            }
+            return string.Empty;
         }
     }
 }
