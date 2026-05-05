@@ -18,6 +18,7 @@ namespace ISFDyT93.Vista.Forms.Carreras
         #region Propiedades Públicas
         public int AnioCarreraId { get; set; }
         public int MateriaId { get; set; }
+        public string AniosCarrerasCodigoBloque { get; set; }
         public TipoAccion Accion { get; set; }
         #endregion
 
@@ -122,6 +123,8 @@ namespace ISFDyT93.Vista.Forms.Carreras
                 {
                     this.materia.Activo = true;
                     this.materia.AnioCarreraId = this.AnioCarreraId;
+                    this.materia.CarreraId = aniosLogica.ObtenerIdCarrera(this.AnioCarreraId); //Obtiene el id de la carrera para insertarlo en la nueva columna de CarreraId de la tabla Materias
+                    this.materia.MateriasCodigoBloque = materiasLogica.CreaMateriaCodigoBloque(this.AnioCarreraId);                    
 
                     //Alta a la base de datos
                     int estado = materiasLogica.AgregarMaterias(this.materia);

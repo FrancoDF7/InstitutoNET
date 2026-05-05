@@ -34,6 +34,15 @@ namespace ISFDyT93.Negocio.Logica
         {
             return this.materiasDao.ObtenerUltimaMateriaId();
         }
+        public string CreaMateriaCodigoBloque(int anioCarreraId)
+        {
+            return this.materiasDao.CreaMateriaCodigoBloque(anioCarreraId);
+        }
+
+        public void RenumerarCodigoBloque(int anioCarreraId)
+        {
+            this.materiasDao.RenumerarCodigoBloque(anioCarreraId);
+        }
         public int EliminarMateria(int materiaId, int anioCarreraId)
         {
             var resultado = this.materiasDao.EliminarMateria(materiaId);

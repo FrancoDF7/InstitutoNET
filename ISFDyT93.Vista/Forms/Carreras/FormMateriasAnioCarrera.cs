@@ -5,6 +5,7 @@ using ISFDyT93.Entidades.Modelos;
 using ISFDyT93.Negocio.Logica;
 using ISFDyT93.Negocio.Core.Enums;
 using ISFDyT93.Entidades.Enums;
+using System.Collections.Generic;
 
 namespace ISFDyT93.Vista.Forms.Carreras
 {
@@ -14,6 +15,7 @@ namespace ISFDyT93.Vista.Forms.Carreras
         public FormPrincipal Contenedor { get; set; }
 
         public int AnioCarreraId { get; set; }
+        public string aniosCarrerasCodigoBloque { get; set; }
         #endregion
 
         #region Propiedades Privadas
@@ -65,6 +67,7 @@ namespace ISFDyT93.Vista.Forms.Carreras
             {
                 form.AnioCarreraId = this.AnioCarreraId;
                 form.MateriaId = this.MateriaId;
+                form.AniosCarrerasCodigoBloque = this.aniosCarrerasCodigoBloque;
                 form.Accion = TipoAccion.Agregar;
             });
         }
@@ -104,7 +107,7 @@ namespace ISFDyT93.Vista.Forms.Carreras
         }
 
         private void tsmEliminarMateria_Click(object sender, EventArgs e)
-        {
+        {        
             //CellContentClick cuando se selecciona en el menu Eliminar
             DialogResult resultado = MessageBox.Show("¿Desea eliminar la Materia seleccionada?",
             "Eliminar Materia", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
@@ -113,11 +116,15 @@ namespace ISFDyT93.Vista.Forms.Carreras
             {
                 materiasLogica.EliminarMateria(this.MateriaId, this.AnioCarreraId);
 
+                //Renumera los codigos de bloque luego de que se elimina una materia
+                materiasLogica.RenumerarCodigoBloque(this.AnioCarreraId);
+
                 dgvMatAnioCarrera.DataSource = this.materiasLogica.ObtenerMaterias(this.AnioCarreraId);
                 //Ocultar columna de la grilla
                 dgvMatAnioCarrera.Columns["MateriaId"].Visible = false;
             }
 
+            
             CalcularHoras();
         }
 
@@ -197,6 +204,7 @@ namespace ISFDyT93.Vista.Forms.Carreras
                 }
             }
         }
+
     }
 }
 
