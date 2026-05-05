@@ -39,8 +39,9 @@ namespace ISFDyT93.Vista.Forms.Carreras
         }
 
         //Metodos para actualizar grilla
-        private void CargarGrillaActivoInactivo()
+        private void CargaGrilla()
         {
+            dgvCarreras.ContextMenuStrip = cmsCarreras;
 
             if (rbActivos.Checked == true)
             {
@@ -79,6 +80,20 @@ namespace ISFDyT93.Vista.Forms.Carreras
                     dgvCarreras.Columns["Carga Horaria Completa"].Visible = false;
                 }
             }
+            else
+            if (rbTodos.Checked == true)
+            {
+                dgvCarreras.DataSource = this.carrerasLogica.ObtenerTodasLasCarreras();
+                CarreraEstados();
+                if (dgvCarreras.Rows.Count > 0)
+                {
+                    dgvCarreras.Columns["CarreraId"].Visible = false;
+                    dgvCarreras.Columns["CarreraEstadoId"].Visible = false;
+                    dgvCarreras.Columns["Carga Horaria Completa"].Visible = false;
+                    dgvCarreras.Columns["Año de Inicio"].Visible = false;
+                    dgvCarreras.Columns["Año de Fin"].Visible = false;
+                }
+            }
 
         }
 
@@ -98,23 +113,6 @@ namespace ISFDyT93.Vista.Forms.Carreras
                 }
             }
 
-        }
-
-        public void Refrescar()
-        {
-            rbActivos.Visible = true;
-            rbInactivos.Visible = true;
-            dgvCarreras.ContextMenuStrip = cmsCarreras;
-            this.dgvCarreras.DataSource = this.carrerasLogica.ObtenerTodasLasCarreras();
-
-            //Ocultar columna de la grilla CarreraId CarreraEstadoId
-            dgvCarreras.Columns["CarreraId"].Visible = false;
-            dgvCarreras.Columns["CarreraEstadoId"].Visible = false;
-            dgvCarreras.Columns["Año De Fin"].Visible = false;
-            dgvCarreras.Columns["Carga Horaria Completa"].Visible = false;
-            dgvCarreras.Columns["Año De Inicio"].Visible = false;
-
-            CarreraEstados();
         }
 
         public void CarreraEstados()
@@ -165,7 +163,7 @@ namespace ISFDyT93.Vista.Forms.Carreras
         private void FormCarreras_Load(object sender, EventArgs e)
         {
             this.Contenedor.SetTitulo("Carreras");
-            CargarGrillaActivoInactivo();
+            CargaGrilla();
 
         }
 
@@ -187,7 +185,7 @@ namespace ISFDyT93.Vista.Forms.Carreras
                 {
                     carrerasLogica.AltaCarreraActivo(CarreraId);
                     Notificar(TipoNotificacion.Success, "Carrera dada de alta con exito");
-                    Refrescar();
+                    CargaGrilla();
                 }
             }
             else
@@ -200,7 +198,7 @@ namespace ISFDyT93.Vista.Forms.Carreras
 
                 }
 
-                Refrescar();
+                CargaGrilla();
             }
         }
 
@@ -381,27 +379,27 @@ namespace ISFDyT93.Vista.Forms.Carreras
                 if (resultado == DialogResult.Yes)
                 {
                     carrerasLogica.EliminarCarrera(CarreraId);
-                    Refrescar();
+                    CargaGrilla();
                 }
             }
         }
         private void rbTodos_CheckedChanged(object sender, EventArgs e)
         {
-            Refrescar();
+            CargaGrilla();
         }
         private void rbActivos_CheckedChanged(object sender, EventArgs e)
         {
-            CargarGrillaActivoInactivo();
+            CargaGrilla();
         }
         private void rbInactivos_CheckedChanged(object sender, EventArgs e)
         {
-            CargarGrillaActivoInactivo();
+            CargaGrilla();
         }
         private void tsmDarAlta_Click(object sender, EventArgs e)
         {
             carrerasLogica.AltaCarreraActivo(CarreraId);
             Notificar(TipoNotificacion.Success, "Carrera dada de alta con exito");
-            Refrescar();
+            CargaGrilla();
             rbActivos.Checked = true;
         }
 
@@ -424,7 +422,7 @@ namespace ISFDyT93.Vista.Forms.Carreras
 
         private void rbBorrador_CheckedChanged(object sender, EventArgs e)
         {
-            CargarGrillaActivoInactivo();
+            CargaGrilla();
         }
 
         private void tmrRetrasoForm_Tick(object sender, EventArgs e)

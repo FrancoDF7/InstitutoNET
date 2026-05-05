@@ -61,6 +61,7 @@ namespace ISFDyT93.Negocio.Logica
         public bool GuardarCarrera(CarrerasModelo modelo, TipoAccion accion)
         {
             bool resultado = false;
+            int carrerasCodigoBloque = carrerasDao.GeneraCarrerasCodigoBloque(); //Crea el siguiente valor para el codigo de bloque
 
             try
             {
@@ -74,6 +75,7 @@ namespace ISFDyT93.Negocio.Logica
                 {
                     modelo.Activo = true;
                     modelo.CarreraEstadoId = 3;
+                    modelo.CarrerasCodigoBloque = carrerasCodigoBloque.ToString("D2");
 
                     if (!string.IsNullOrEmpty(modelo.PlanEstudio))
                     {
@@ -111,11 +113,12 @@ namespace ISFDyT93.Negocio.Logica
                             GuardarArchivo(archiImagen, modelo.ImagenDescriptiva, @"\Imagen");
 
 
-                        int carreraId = carrerasDao.ObtenerUltimoCarreraId();
+                        int carreraId = carrerasDao.ObtenerUltimoCarreraId();                        
 
                         for (int anio = 1; anio <= modelo.Duracion; anio++)
-                        {
-                            aniosCarreraDao.AgregarAnio(anio, carreraId);
+                        {                            
+                            string codigoFormateado = carrerasCodigoBloque.ToString("D2") + anio.ToString();
+                            aniosCarreraDao.AgregarAnio(anio, carreraId, codigoFormateado);
                         }
 
                         resultado = true;
@@ -153,7 +156,8 @@ namespace ISFDyT93.Negocio.Logica
 
                             for (int anio = 1; anio <= modelo.Duracion; anio++)
                             {
-                                aniosCarreraDao.AgregarAnio(anio, modelo.CarreraId);
+                                string codigoFormateado = carrerasCodigoBloque.ToString("D2") + anio.ToString();
+                                aniosCarreraDao.AgregarAnio(anio, modelo.CarreraId, codigoFormateado);
                             }
                         }
 

@@ -11,7 +11,7 @@ namespace ISFDyT93.Datos.Daos
         public DataTable ObtenerTodasLasCarreras(bool Activo = true)
         {
             //Todas las carreras(Activas,Inactivas,Borrador).
-            string query = "SELECT C.CarrerasCodigoBloque AS [Codigo],C.CarreraId, C.Nombre, C.DescripcionCorta AS [Descripción], " +
+            string query = "SELECT C.CarrerasCodigoBloque AS [Código], C.CarreraId, C.Nombre, C.DescripcionCorta AS [Descripción], " +
                 "C.NumeroExpediente AS [Numero de Expediente], C.AnioInicio as [Año de Inicio], IIF(C.AnioFin > 0, " +
                 "Convert(nvarchar(4), C.AnioFin) , '') as [Año de Fin], C.CantidadHoras as [Carga Horaria Completa], " +
                 "C.CarreraEstadoId, CE.Descripcion AS Estado FROM Carreras C" +
@@ -22,7 +22,7 @@ namespace ISFDyT93.Datos.Daos
         public DataTable ObtenerCarreras(bool Activo = true)
         {
             //Query para seleccionar todos resgistros de Carreras
-            string query = "SELECT C.CarreraId, C.Nombre, C.DescripcionCorta AS [Descripción], C.NumeroExpediente AS [Numero de Expediente], C.AnioInicio as [Año de Inicio], IIF(C.AnioFin > 0, Convert(nvarchar(4), C.AnioFin) , '') as [Año de Fin], C.CantidadHoras as [Carga Horaria Completa], C.CarreraEstadoId, CE.Descripcion AS Estado FROM Carreras C" +
+            string query = "SELECT C.CarrerasCodigoBloqueAS [Código], C.CarreraId, C.Nombre, C.DescripcionCorta AS [Descripción], C.NumeroExpediente AS [Numero de Expediente], C.AnioInicio as [Año de Inicio], IIF(C.AnioFin > 0, Convert(nvarchar(4), C.AnioFin) , '') as [Año de Fin], C.CantidadHoras as [Carga Horaria Completa], C.CarreraEstadoId, CE.Descripcion AS Estado FROM Carreras C" +
               " INNER JOIN CarreraEstados CE on C.CarreraEstadoId = CE.CarreraEstadoId WHERE C.CarreraEstadoId = 1" +
               " ORDER BY C.Nombre ASC;";
 
@@ -31,7 +31,7 @@ namespace ISFDyT93.Datos.Daos
         public DataTable CarrerasInactivas(bool Activo = false)
         {
             //Obtiene info de Carreras en estado Inactivas
-            string query = "SELECT C.CarrerasCodigoBloque AS [Codigo],C.CarreraId, " +
+            string query = "SELECT CarrerasCodigoBloque AS [Código], C.CarreraId, " +
                 "C.Nombre, C.DescripcionCorta AS [Descripción], " +
                 "C.NumeroExpediente AS [Numero de Expediente], " +
                 "C.CarreraEstadoId , CE.Descripcion AS Estado " +
@@ -41,7 +41,7 @@ namespace ISFDyT93.Datos.Daos
         public DataTable CarrerasBorrador(bool Activo = false)
         {
             //Obtiene info de Carreras en estado Borrador
-            string query = "SELECT C.CarrerasCodigoBloque AS [Codigo],C.CarreraId, " +
+            string query = "SELECT C.CarrerasCodigoBloque AS [Código], C.CarreraId, " +
                 "C.Nombre, C.DescripcionCorta AS [Descripción], C.NumeroExpediente AS [Numero de Expediente], " +
                 "C.CarreraEstadoId , C.CantidadHoras as [Carga Horaria Completa], " +
                 "CE.Descripcion AS Estado " +
@@ -51,7 +51,7 @@ namespace ISFDyT93.Datos.Daos
         public DataTable CarrerasActivas(bool Activo = true)
         {
             //Obtiene info de Carreras en estado Activas
-            string query = "SELECT C.CarrerasCodigoBloque AS [Codigo], C.CarreraId, C.Nombre, " +
+            string query = "SELECT C.CarrerasCodigoBloque AS [Código], C.CarreraId, C.Nombre, " +
                 "C.DescripcionCorta AS [Descripción], C.NumeroExpediente AS [Numero de Expediente], " +
                 "C.CarreraEstadoId , CE.Descripcion AS Estado " +
                 "FROM Carreras C INNER JOIN CarreraEstados CE on C.CarreraEstadoId = CE.CarreraEstadoId AND C.CarreraEstadoId = " + (Activo ? "1" : "1");// FROM Carreras WHERE CarreraEstadoId = " + (Activo ? "1" : "1");
@@ -96,6 +96,16 @@ namespace ISFDyT93.Datos.Daos
                 return Convert.ToInt32(row["CarreraId"]);
             }
             return 0;
+        }
+
+        //Crea codigo de bloque para Carreras
+        public int GeneraCarrerasCodigoBloque()
+        {
+            string query = "SELECT TOP 1 CarrerasCodigoBloque FROM Carreras ORDER BY CarrerasCodigoBloque DESC";
+            var row = this.Conexion.ObtenerRegistro(query);
+            int codigo = Convert.ToInt32(row["CarrerasCodigoBloque"]);
+            codigo++;
+            return codigo;
         }
 
         //METODO para agregar carreras a la base de datos
