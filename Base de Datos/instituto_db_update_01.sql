@@ -5,7 +5,7 @@
 --EQUIPO 5
 --****************
 
-USE instituto_db
+USE instituto_db;
 
 GO
 
@@ -13,11 +13,11 @@ GO
 
 --Creacion de una nueva columna para almacenar el codigo de bloque de la tabla Carreras
 ALTER TABLE Carreras
- ADD CarrerasCodigoBloque VARCHAR(2);
+ ADD CarrerasCodigoBloque VARCHAR(20);
 
 GO
 --Creacion de una nueva columna para almacenar el codigo de bloque de la tabla AniosCarreras
-ALTER TABLE AniosCarreras
+ALTER TABLE AniosCarreras 
  ADD AniosCarrerasCodigoBloque VARCHAR(20);
 
 GO
@@ -48,27 +48,7 @@ INNER JOIN Codigos C ON CA.CarreraId = C.CarreraId;
 
 GO
 
---TRIGGER para generar el codigo de bloque en futuros registros de la tabla Carreras
-CREATE TRIGGER TRG_Carreras_CodigoBloque
-ON Carreras
-AFTER INSERT
-AS
-BEGIN
-	;WITH Codigos AS(
-		SELECT CarreraId,
-		FORMAT(DENSE_RANK() OVER (ORDER BY CarreraId), '00') AS CarrerasCodigoBloque
-		FROM Carreras
-	)
-	UPDATE CA 
-	SET CA.CarrerasCodigoBloque = C.CarrerasCodigoBloque
-	FROM Carreras CA
-	INNER JOIN Codigos C ON CA.CarreraId = C.CarreraId
-	INNER JOIN inserted I ON CA.CarreraId = I.CarreraId;
-END;
-
-GO
-
---Indice para CarrerasCodigoBloque
+--Indice del nuevo campo CarrerasCodigoBloque
 CREATE INDEX I_Carreras_C_CodigoBloque
 ON Carreras(CarrerasCodigoBloque);
 
@@ -80,8 +60,8 @@ GO
 ;WITH Codigos AS (
     SELECT 
         AnioCarreraId,
-        FORMAT(DENSE_RANK() OVER (ORDER BY CarreraId), '00') + '-' +
-        FORMAT(ROW_NUMBER() OVER (PARTITION BY CarreraId ORDER BY AnioCarreraId), '00') AS AniosCarrerasCodigoBloque
+        FORMAT(DENSE_RANK() OVER (ORDER BY CarreraId), '00') + '' +
+        FORMAT(ROW_NUMBER() OVER (PARTITION BY CarreraId ORDER BY AnioCarreraId), '0') AS AniosCarrerasCodigoBloque
     FROM AniosCarreras
 )
 UPDATE AC
@@ -90,28 +70,6 @@ FROM AniosCarreras AC
 INNER JOIN Codigos C ON AC.AnioCarreraId = C.AnioCarreraId;
 
 GO
-
---TRIGGER para genera el codigo de bloque en futuros registros de la tabla Carreras
-CREATE TRIGGER TRG_AniosCarreras_CodigoBloque
-ON AniosCarreras
-AFTER INSERT
-AS
-BEGIN
-	;WITH Codigos AS(
-		SELECT CarreraId, AnioCarreraId,
-		FORMAT(DENSE_RANK() OVER(ORDER BY CarreraId), '00') + '-' +
-		FORMAT(ROW_NUMBER() OVER(PARTITION BY CarreraId ORDER BY AnioCarreraId),'00') AS AniosCarrerasCodigoBloque
-		FROM AniosCarreras
-	)
-	UPDATE AC
-	SET AC.AniosCarrerasCodigoBloque = C.AniosCarrerasCodigoBloque
-	FROM AniosCarreras AC
-	INNER JOIN Codigos C ON AC.AnioCarreraId = C.AnioCarreraId
-	INNER JOIN inserted I ON AC.AnioCarreraId = I.AnioCarreraId;
-END;
-
-GO
-
 
 --Indice para AniosCarrerasCodigoBloque
 CREATE INDEX I_AniosCarreras_AC_CodigoBloque
@@ -150,8 +108,8 @@ GO
     AC.AnioCarreraId,
     M.CarreraId,
     M.MateriaId,
-    FORMAT(DENSE_RANK() OVER (ORDER BY AC.CarreraId), '00') + '-' +
-    FORMAT(DENSE_RANK() OVER (PARTITION BY AC.CarreraId ORDER BY AC.AnioCarreraId), '00') + '-' +
+    FORMAT(DENSE_RANK() OVER (ORDER BY AC.CarreraId), '00') + '' +
+    FORMAT(DENSE_RANK() OVER (PARTITION BY AC.CarreraId ORDER BY AC.AnioCarreraId), '0') + '' +
     FORMAT(ROW_NUMBER() OVER (PARTITION BY AC.CarreraId, AC.AnioCarreraId ORDER BY M.MateriaId), '00') AS MateriasCodigoBloque
 FROM AniosCarreras AC
 LEFT JOIN Materias M ON AC.AnioCarreraId = M.AnioCarreraId
@@ -160,41 +118,6 @@ UPDATE M
 SET M.MateriasCodigoBloque = C.MateriasCodigoBloque
 FROM Materias M
 INNER JOIN Codigos C ON M.MateriaId = C.MateriaId;
-
-GO
-
---TRIGGER para genera el codigo de bloque en futuros registros de la tabla Materias
-CREATE TRIGGER TRG_Materias_CodigoBloque
-ON Materias
-AFTER INSERT
-AS
-BEGIN
-	--Actualiza el valor columna CarreraId para la nueva Materia ingresada,
-	--para que el codigo de bloque se genere correctamente
-	UPDATE M
-    SET M.CarreraId = AC.CarreraId
-    FROM Materias M
-    INNER JOIN inserted I ON M.MateriaId = I.MateriaId
-    INNER JOIN AniosCarreras AC ON M.AnioCarreraId = AC.AnioCarreraId;
-
-	--Genera el codigo de bloque para la tabla Materia
-	;WITH Codigos AS(
-	SELECT
-    AC.AnioCarreraId,
-    M.CarreraId,
-    M.MateriaId,
-    FORMAT(DENSE_RANK() OVER (ORDER BY AC.CarreraId), '00') + '-' +
-    FORMAT(DENSE_RANK() OVER (PARTITION BY AC.CarreraId ORDER BY AC.AnioCarreraId), '00') + '-' +
-    FORMAT(ROW_NUMBER() OVER (PARTITION BY AC.CarreraId, AC.AnioCarreraId ORDER BY M.MateriaId), '00') AS MateriasCodigoBloque
-FROM AniosCarreras AC
-LEFT JOIN Materias M ON AC.AnioCarreraId = M.AnioCarreraId
-	)
-	UPDATE M
-	SET M.MateriasCodigoBloque = C.MateriasCodigoBloque
-	FROM Materias M
-	INNER JOIN Codigos C ON M.MateriaId = C.MateriaId;
-END;
-
 
 GO
 
